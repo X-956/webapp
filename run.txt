@@ -1,0 +1,124 @@
+医院门诊挂号管理系统启动说明
+
+一、运行环境
+
+1. Node.js 和 npm
+2. Python 3.10 或以上版本
+3. MySQL 8.0 或以上版本
+
+二、首次运行配置
+
+1. 进入项目根目录。
+   项目根目录就是 run.txt 所在目录，例如 webapp 目录。
+
+2. 启动 MySQL 服务，并导入数据库脚本。
+   该脚本会创建 hospital_outpatient 数据库、数据表、视图、触发器、存储过程、测试数据和 app_user 用户。
+
+   在 Windows PowerShell 中执行：
+
+   cmd /c "mysql -u root -p < database_final.sql"
+
+   按提示输入 MySQL 的 root 密码即可。
+
+3. 导入登录账号表初始化脚本。
+   该脚本依赖 database_final.sql 已经创建好的 hospital_outpatient 数据库、doctors 表和 app_user 用户。
+
+   在项目根目录执行：
+
+   cmd /c "mysql -u root -p < backend\auth_init.sql"
+
+   按提示输入 MySQL 的 root 密码即可。
+
+4. 检查后端数据库配置文件：
+
+   backend\.env
+
+   默认配置如下：
+
+   MYSQL_HOST=127.0.0.1
+   MYSQL_PORT=3306
+   MYSQL_USER=app_user
+   MYSQL_PASSWORD=App123!
+   MYSQL_DATABASE=hospital_outpatient
+   CORS_ORIGINS=http://127.0.0.1:3000,http://localhost:3000
+
+   如果本机 MySQL 账号、密码或端口不同，请修改 backend\.env。
+   JWT_SECRET_KEY、JWT_ALGORITHM、ACCESS_TOKEN_EXPIRE_MINUTES 可选配置；不填写时后端会使用本地开发默认值。
+
+5. 安装前端依赖：
+
+   npm install
+
+6. 安装后端依赖：
+
+   cd backend
+   python -m venv .venv
+   .\.venv\Scripts\python -m pip install -r requirements.txt
+
+7. 初始化演示登录账号。
+   该脚本会生成 bcrypt 密码哈希，不会把明文密码写入 password_hash 字段。
+
+   在 backend 目录执行：
+
+   .\.venv\Scripts\python create_demo_users.py
+
+   默认演示账号：
+
+   admin / Admin123! / 管理员 / 系统管理员
+   doctor01 / Doctor123! / 医生 / 张医生
+   readonly / Readonly123! / 只读 / 只读访客
+
+三、日常启动步骤
+
+1. 启动后端服务。
+
+   打开一个新的 PowerShell 窗口，先进入项目根目录，再执行：
+
+   cd backend
+   .\.venv\Scripts\python -m uvicorn main:app --host 127.0.0.1 --port 8001 --reload
+
+   后端接口地址：
+
+   http://127.0.0.1:8001/api
+
+   后端接口文档：
+
+   http://127.0.0.1:8001/docs
+
+2. 启动前端服务。
+
+   再打开一个新的 PowerShell 窗口，进入项目根目录后执行：
+
+   npx nuxt
+
+   前端访问地址：
+
+   http://127.0.0.1:3000
+
+   登录页面：
+
+   http://127.0.0.1:3000/#/login
+
+四、常见问题
+
+1. 如果前端页面没有数据，请确认后端窗口仍在运行，并且浏览器可以打开：
+
+   http://127.0.0.1:8001/docs
+
+2. 如果后端提示数据库连接失败，请确认：
+
+   - MySQL 服务已经启动
+   - database_final.sql 已成功导入
+   - backend\auth_init.sql 已成功导入
+   - backend\create_demo_users.py 已成功执行
+   - backend\.env 中的 MYSQL_USER、MYSQL_PASSWORD、MYSQL_PORT 配置正确
+
+3. 如果 3000 或 8001 端口被占用，请先关闭占用端口的程序，或者修改启动命令中的端口。
+
+4. 如果 PowerShell 不能执行虚拟环境激活脚本，不需要激活虚拟环境，直接使用本说明中的：
+
+   .\.venv\Scripts\python -m uvicorn main:app --host 127.0.0.1 --port 8001 --reload
+
+五、停止服务
+
+在前端或后端运行窗口中按 Ctrl + C 即可停止对应服务。

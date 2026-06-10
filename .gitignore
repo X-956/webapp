@@ -59,6 +59,12 @@ typings/
 # dotenv environment variables file
 .env
 
+# Python local environment and cache
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 
